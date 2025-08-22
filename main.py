@@ -21,9 +21,9 @@ TILE_SIZE = 1000
 URL_TEMPLATE = "https://backend.wplace.live/files/s0/tiles/{tlx}/{tly}.png"
 URL_AUTHOR_TEMPLATE = "https://backend.wplace.live/s0/pixel/{tlx}/{tly}?x={x}&y={y}"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
-SEND_VIDEO_INSTEAD_OF_GIF = True
-TEST_DONT_SAVE_ZONE = False
-SEND_FILTERED = True
+SEND_VIDEO_INSTEAD_OF_GIF = True # Отправлять MP4 вместо GIF, для телеграма лучше, так как гифки сильно сжимаются 
+TEST_DONT_SAVE_ZONE = False # Не сохранять изменения (для отладки)
+SEND_FILTERED = False # Отправлять сообщение об изменениях даже от игнорируемых авторов, добавляется только восклицательный знак в начале сообщения, если изменения не от пользователя из фильтра 
 
 logging.basicConfig(
     level=logging.INFO, 
