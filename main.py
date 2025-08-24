@@ -119,7 +119,7 @@ def make_diff_video(img_old: Image.Image, img_new: Image.Image, fps: int = 1, us
 
     w, h = img_old.size
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    bio_path = '/tmp/temp_vizzzzdeo.mp4'
+    bio_path = '/tmp/temp_video.mp4'
 
     out = cv2.VideoWriter(bio_path, fourcc, fps, (w, h))
 
