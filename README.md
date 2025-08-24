@@ -15,7 +15,8 @@ ZoneConfig(
     bot_token="...",  # Токен Telegram-бота (получить у @BotFather)
     chat_id="...",  # ID чата или канала для уведомлений
     ignored_authors=(),  # Игнорируемые авторы (их ID можно узнать через API)
-    interval=600  # Интервал проверки в секундах (по умолчанию 600 = 10 минут)
+    interval=600,  # Интервал проверки в секундах (по умолчанию 600 = 10 минут)
+    use_white_bg=True # Отправлять видео с белым фоном вместо чёрного
 ),
 ```
 
@@ -43,7 +44,8 @@ ZONE_CONFIGS = (
         bot_token="токен2",
         chat_id="чат_id2",
         ignored_authors=(),
-        interval=600
+        interval=600,
+        use_white_bg=True
     ),
 )
 ```
