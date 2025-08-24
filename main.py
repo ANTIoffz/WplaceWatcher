@@ -21,7 +21,7 @@ URL_AUTHOR_TEMPLATE = "https://backend.wplace.live/s0/pixel/{tlx}/{tly}?x={x}&y=
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 SEND_VIDEO_INSTEAD_OF_GIF = True # Отправлять MP4 вместо GIF, для телеграма лучше, так как гифки сильно сжимаются 
 TEST_DONT_SAVE_ZONE = False # Не сохранять изменения (для отладки)
-SEND_FILTERED = False # Отправлять сообщение об изменениях даже от игнорируемых авторов, добавляется только восклицательный знак в начале сообщения, если изменения не от пользователя из фильтра 
+SEND_FILTERED = True # Отправлять сообщение об изменениях даже от игнорируемых авторов, добавляется только восклицательный знак в начале сообщения, если изменения не от пользователя из фильтра 
 
 logging.basicConfig(
     level=logging.INFO, 
@@ -113,18 +113,23 @@ def make_diff_gif(img_old: Image.Image, img_new: Image.Image) -> BytesIO:
 
 
 
-def make_diff_video(img_old: Image.Image, img_new: Image.Image, fps: int = 1) -> BytesIO:
+def make_diff_video(img_old: Image.Image, img_new: Image.Image, fps: int = 1, use_white_bg: bool = False) -> BytesIO:
     img_old = upscale_min(img_old)
     img_new = upscale_min(img_new)
 
     w, h = img_old.size
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    bio_path = '/tmp/temp_video.mp4'
+    bio_path = '/tmp/temp_vizzzzdeo.mp4'
 
     out = cv2.VideoWriter(bio_path, fourcc, fps, (w, h))
 
     for frame in [img_old, img_new]:
-        frame_bgr = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
+        if use_white_bg:
+            white_bg = Image.new("RGB", frame.size, (255, 255, 255))
+            white_bg.paste(frame, (0, 0), frame if frame.mode == 'RGBA' else None)
+            frame_bgr = cv2.cvtColor(np.array(white_bg), cv2.COLOR_RGB2BGR)
+        else:  
+            frame_bgr = cv2.cvtColor(np.array(frame.convert("RGB")), cv2.COLOR_RGB2BGR)
         out.write(frame_bgr)
 
     out.release()
@@ -145,14 +150,14 @@ def get_area(image_pos: Tuple[Tuple[int, int, int, int], Tuple[int, int, int, in
 
     big_width = (max_tx - min_tx + 1) * TILE_SIZE
     big_height = (max_ty - min_ty + 1) * TILE_SIZE
-    big_img = Image.new("RGB", (big_width, big_height))
+    big_img = Image.new("RGBA", (big_width, big_height))
 
     for tx in range(min_tx, max_tx + 1):
         for ty in range(min_ty, max_ty + 1):
-            tile = fetch_tile(tx, ty)
+            tile = fetch_tile(tx, ty).convert("RGBA")
             ox = (tx - min_tx) * TILE_SIZE
             oy = (ty - min_ty) * TILE_SIZE
-            big_img.paste(tile, (ox, oy))
+            big_img.paste(tile, (ox, oy), tile)
 
     gx1 = (tx1 - min_tx) * TILE_SIZE + x1
     gy1 = (ty1 - min_ty) * TILE_SIZE + y1
@@ -204,7 +209,8 @@ def main(
     bot_token: str,
     chat_id: str,
     interval: int = 600,
-    ignored_authors: Tuple[int, ...] = ()
+    ignored_authors: Tuple[int, ...] = (),
+    use_white_bg: bool = False,
 ):
     new_data = get_area(image_pos)
 
@@ -250,7 +256,7 @@ def main(
                         text,
                         token=bot_token,
                         chat_id=chat_id,
-                        video=make_diff_video(old_data, new_data)
+                        video=make_diff_video(old_data, new_data, use_white_bg=use_white_bg)
                     )
             else:
                 logging.info(f"[{zone_name}] Автор в белом списке")
@@ -268,11 +274,12 @@ def run_bot(
     bot_token: str,
     chat_id: str,
     interval: int = 600,
-    ignored_authors: Tuple[int, ...] = ()
+    ignored_authors: Tuple[int, ...] = (),
+    use_white_bg: bool = False,
 ):
     while True:
         try:
-            main(zone_name, image_pos, save_file, bot_token, chat_id, interval, ignored_authors)
+            main(zone_name, image_pos, save_file, bot_token, chat_id, interval, ignored_authors, use_white_bg)
         except Exception as e:
             logging.error(f"[{zone_name}] ОШИБКА: {e}")
             time.sleep(interval)

@@ -14,7 +14,8 @@ for zone in zones:
             zone.bot_token,
             zone.chat_id,
             zone.interval,
-            zone.ignored_authors
+            zone.ignored_authors,
+            zone.use_white_bg
         ),
         daemon=True
     )
