@@ -1,6 +1,7 @@
 #  Wplace Watcher
 Бот для мониторинга изменений на артах в [Wplace](https://wplace.live).
 
+<img width="411" height="748" alt="изображение" src="https://github.com/user-attachments/assets/73c390e6-1489-4d3d-bbcb-0555cf5a9fac" />
 
 ## ⚙️ Настройка конфигурации
 
