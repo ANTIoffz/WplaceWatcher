@@ -4,6 +4,7 @@ from io import BytesIO
 from typing import List, Tuple, Union
 import cv2
 import numpy as np
+import tempfile
 
 import requests
 from PIL import Image, ImageChops
@@ -112,14 +113,15 @@ def make_diff_gif(img_old: Image.Image, img_new: Image.Image) -> BytesIO:
     return bio
 
 
-
 def make_diff_video(img_old: Image.Image, img_new: Image.Image, fps: int = 1, use_white_bg: bool = False) -> BytesIO:
     img_old = upscale_min(img_old)
     img_new = upscale_min(img_new)
 
     w, h = img_old.size
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    bio_path = '/tmp/temp_video.mp4'
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
+        bio_path = tmp_file.name
 
     out = cv2.VideoWriter(bio_path, fourcc, fps, (w, h))
 
@@ -138,7 +140,12 @@ def make_diff_video(img_old: Image.Image, img_new: Image.Image, fps: int = 1, us
     with open(bio_path, 'rb') as f:
         bio.write(f.read())
     bio.seek(0)
-    os.remove(bio_path)
+
+    try:
+        os.remove(bio_path)
+    except OSError:
+        pass
+
     return bio
 
 
