@@ -202,7 +202,6 @@ def get_changed_pixels(img1: Image.Image, img2: Image.Image, image_pos: Tuple[Tu
 
 
 def images_diff(img1: Image.Image, img2: Image.Image) -> bool:
-    """Проверка, есть ли различия между изображениями."""
     if img1.size != img2.size:
         return True
     diff = ImageChops.difference(img1, img2)
@@ -288,5 +287,5 @@ def run_bot(
         try:
             main(zone_name, image_pos, save_file, bot_token, chat_id, interval, ignored_authors, use_white_bg)
         except Exception as e:
-            logging.error(f"[{zone_name}] ОШИБКА: {e}")
+            logging.error(f"[{zone_name}] ОШИБКА: {e}") # может быть когда сайт упал
             time.sleep(interval)
